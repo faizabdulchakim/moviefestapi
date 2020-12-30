@@ -28,9 +28,13 @@ sql.connect(db_config, function (err) {
 });
 
 var list_movie			= require('./processor/app/list_movie.js');
+var search_movie			= require('./processor/app/search_movie.js');
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set('axios',axios);
 app.use(list_movie);
+app.use(search_movie);
 
 app.get('/*', function(req, res) {
   res.send("WELCOME TO API");
