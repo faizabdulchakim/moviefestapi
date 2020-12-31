@@ -22,7 +22,7 @@ router.get('/list_movie/:page_number', function(req, res){
 				g.name AS 'genre',
 				ROW_NUMBER() OVER (ORDER BY m.id) AS RowNum
 			FROM movies m
-			JOIN genres g ON g.id = m.genre_id
+			JOIN genres g ON g.id = m.genre_id and g.status=1
 			WHERE 1=1
 			AND m."status" = 1
 		)

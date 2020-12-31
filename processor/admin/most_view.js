@@ -11,25 +11,25 @@ router.post('/most_view', function(req, res){
 	if(most_view_type=="movies"){
 		command = `
 		SELECT
-			COUNT(views.movie_id) 'count_view',
-			movies.title
+			COUNT(v.movie_id) 'count_view',
+			m.title
 			
 		FROM
-			movies
-		JOIN views ON views.movie_id = movies.id
-		GROUP BY views.movie_id,movies.title
+			movies m
+		JOIN views v ON v.movie_id = m.id
+		GROUP BY v.movie_id,m.title
 		ORDER BY count_view DESC
 		`
 	}else if(most_view_type=="genres"){
 		command=`
 		SELECT
-			COUNT(genres.name) AS 'count_view',
-			genres.name
+			COUNT(g.name) AS 'count_view',
+			g.name
 		FROM
-			genres
-		JOIN movies ON movies.genre_id = genres.id
-		JOIN views ON views.movie_id = movies.id
-		GROUP BY genres.name
+			genres g
+		JOIN movies m ON m.genre_id = g.id and m.status=1
+		JOIN views v ON v.movie_id = m.id
+		GROUP BY g.name
 		`
 	}
 	

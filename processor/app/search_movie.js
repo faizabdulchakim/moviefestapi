@@ -28,7 +28,7 @@ router.post('/search_movie/:page_number', function(req, res){
 					g.name AS 'genre',
 					ROW_NUMBER() OVER (ORDER BY m.id) AS RowNum
 				FROM movies m
-				JOIN genres g ON g.id = m.genre_id
+				JOIN genres g ON g.id = m.genre_id and g.status=1
 				WHERE 1=1
 				AND m."status" = 1
 				AND ${search_by1} like '%${phrase}%'
@@ -52,14 +52,15 @@ router.post('/search_movie/:page_number', function(req, res){
 							g.name AS 'genre',
 							ROW_NUMBER() OVER (ORDER BY m.id) AS RowNum
 						FROM movies m
-						JOIN genres g ON g.id = m.genre_id
+						JOIN genres g ON g.id = m.genre_id and g.status=1
 						
 						inner JOIN (
 							SELECT
 							ma.movie_id
 							FROM artists a
-							JOIN movie_artists ma ON ma.artist_id = a.id
+							JOIN movie_artists ma ON ma.artist_id = a.id and ma.status=1
 							WHERE a.name LIKE '%${phrase}%'
+							and a.status=1
 							GROUP BY ma.movie_id
 						) o
 						ON o.movie_id = m.id
