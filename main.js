@@ -1,8 +1,7 @@
-var express						= require('express');
-var axios						= require('axios');
-var sql							= require('mssql');
-var cors 						= require('cors');
-var bodyParser					= require('body-parser');
+var express		= require('express');
+var sql			= require('mssql');
+var cors 		= require('cors');
+var bodyParser	= require('body-parser');
 
 var app	= express();
 
@@ -31,14 +30,17 @@ var list_movie			= require('./processor/app/list_movie.js');
 var search_movie		= require('./processor/app/search_movie.js');
 var viewership			= require('./processor/app/viewership');
 
+var create_movie		= require('./processor/admin/create_movie');
 var most_view			= require('./processor/admin/most_view.js');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('axios',axios);
+
 app.use(list_movie);
 app.use(search_movie);
 app.use(viewership);
+
+app.use(create_movie);
 app.use(most_view);
 
 app.get('/*', function(req, res) {
