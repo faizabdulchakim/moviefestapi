@@ -35,7 +35,11 @@ router.post('/most_view', function(req, res){
 	
 	var Request 			= new sql.Request();
 	Request.query(command,function(err,data){
-		res.send(JSON.stringify(data.recordset));
+		if(err){
+			res.send({'status':'err','data':[]});
+		}else{
+			res.send({'status':'success','data':data.recordset});
+		}
 	})
 	
 });
