@@ -3,43 +3,124 @@ var sql			= require('mssql');
 var router		= express.Router();
 
 router.post('/search_movie/:page_number', function(req, res){
-	var param			 	= req.body;
-	var search_by_matrix 	= ['movies.title','movies.description','artists.name','genres.name'];
-	var search_by 		 	= search_by_matrix[param.search_by]; //0:title 1:description 2:artists 3:genres
-	var phrase	  		 	= param.phrase;
 	
+	var param			 	= req.body;
+	var phrase	  		 	= param.phrase;
 	var page_number			= req.params.page_number;
-	var Request 			= new sql.Request();
 	var movie_per_page 		= 5;
 	var end_data 			= page_number * movie_per_page;
 	var start_data			= end_data - 4;
+	var search_by_matrix 	= ['m.title','m.description','a.name','g.name'];
 	
-	var command = `
-	WITH Results_CTE AS
-	(
+	var Request 			= new sql.Request();
+	var prom1 = new Promise(function(resolve,reject){
+		if(search_by_matrix[param.search_by]!="a.name"){
+			search_by1			= search_by_matrix[param.search_by];
+			var command = `
+			WITH Results_CTE AS
+			(
+				SELECT
+					m.id,
+					m.title,
+					m.description,
+					m.duration,
+					m.watchurl,
+					g.name AS 'genre',
+					ROW_NUMBER() OVER (ORDER BY m.id) AS RowNum
+				FROM movies m
+				JOIN genres g ON g.id = m.genre_id
+				WHERE 1=1
+				AND m."status" = 1
+				AND ${search_by1} like '%${phrase}%'
+			)
+			SELECT *
+			FROM Results_CTE
+			WHERE RowNum >= ${start_data}
+			AND RowNum < ${start_data} + ${end_data}
+			`
+		}else if(search_by_matrix[param.search_by]=="a.name"){
+			
+			var command = `
+			WITH Results_CTE AS
+			(
+						SELECT
+							m.id,
+							m.title,
+							m.description,
+							m.duration,
+							m.watchurl,
+							g.name AS 'genre',
+							ROW_NUMBER() OVER (ORDER BY m.id) AS RowNum
+						FROM movies m
+						JOIN genres g ON g.id = m.genre_id
+						
+						inner JOIN (
+							SELECT
+							ma.movie_id
+							FROM artists a
+							JOIN movie_artists ma ON ma.artist_id = a.id
+							WHERE a.name LIKE '%${phrase}%'
+							GROUP BY ma.movie_id
+						) o
+						ON o.movie_id = m.id
+						
+						WHERE 1=1
+						AND m."status" = 1
+			)
+					SELECT *
+					FROM Results_CTE
+					WHERE RowNum >= ${start_data}
+					AND RowNum < ${start_data} + ${end_data}
+			`
+			
+		}
+		
+	
+		Request.query(command,function(err,data){
+			if(err){
+				resolve('err');
+			}else{
+				resolve(data.recordset);
+			}
+		})
+	});
+	
+	var prom2 = new Promise(function(resolve,reject){
+		var command = `
 		SELECT
-			movies.title,
-			ROW_NUMBER() OVER (ORDER BY movies.id) AS RowNum
-		FROM movies
-		JOIN genres ON genres.id = movies.genre_id AND genres.status=1
-		JOIN movie_artists ON movie_artists.movie_id = movies.id AND movie_artists.status=1
-        JOIN artists ON artists.id = movie_artists.artist_id AND artists.status=1
-		WHERE 1=1
-		and movies.status=1
-		and ${search_by} like '%${phrase}%'
-	)
-	SELECT distinct *
-	FROM Results_CTE
-	WHERE
-	1=1
-	and RowNum >= ${start_data}
-	AND RowNum < ${start_data} + ${end_data}
-	`
+		a.name,
+		m.id
+		FROM artists a
+		JOIN movie_artists ma ON ma.artist_id = a.id AND ma."status"=1
+		JOIN movies m ON m.id = ma.movie_id AND m."status"=1
+		WHERE
+		a."status"=1
+		`
+
+		Request.query(command,function(err,data){
+			if(err){
+				resolve('err');
+			}else{
+				resolve(data.recordset);
+			}
+		})
+	});
 	
-	Request.query(command,function(err,data){
-		console.log(command);
-		res.send(JSON.stringify(data.recordset));
-	})
+	Promise.all([prom1,prom2]).then(function(values) {
+		if(values[0]!="err"&&values[1]!="err"){
+			values[0].forEach(function(a,b){
+				a.artists=[];
+				values[1].forEach(function(c,d){
+					if(a.id==c.id){
+						a.artists.push(c.name);
+					}
+				});
+			})
+			res.send({'status':'success','data':values[0]});
+		}else{
+			res.send({'status':'err','data':[]});
+		}
+	});
 	
 });
 
