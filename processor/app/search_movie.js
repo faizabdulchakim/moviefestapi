@@ -3,16 +3,16 @@ var sql			= require('mssql');
 var router		= express.Router();
 
 router.post('/search_movie/:page_number', function(req, res){
-	var param	= req.body;
-	var search_by_matrix = ['movies.title','movies.description','artists.name','genres.name'];
-	var search_by = search_by_matrix[param.search_by]; //0:title 1:description 2:artists 3:genres
-	var phrase	  = param.phrase;
+	var param			 	= req.body;
+	var search_by_matrix 	= ['movies.title','movies.description','artists.name','genres.name'];
+	var search_by 		 	= search_by_matrix[param.search_by]; //0:title 1:description 2:artists 3:genres
+	var phrase	  		 	= param.phrase;
 	
-	var page_number		= req.params.page_number;
-	var Request 		= new sql.Request();
-	var movie_per_page 	= 5;
-	var end_data 		= page_number * movie_per_page;
-	var start_data		= end_data - 4;
+	var page_number			= req.params.page_number;
+	var Request 			= new sql.Request();
+	var movie_per_page 		= 5;
+	var end_data 			= page_number * movie_per_page;
+	var start_data			= end_data - 4;
 	
 	var command = `
 	WITH Results_CTE AS

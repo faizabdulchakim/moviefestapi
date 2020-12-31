@@ -28,13 +28,15 @@ sql.connect(db_config, function (err) {
 });
 
 var list_movie			= require('./processor/app/list_movie.js');
-var search_movie			= require('./processor/app/search_movie.js');
+var search_movie		= require('./processor/app/search_movie.js');
+var most_view			= require('./processor/admin/most_view.js');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('axios',axios);
 app.use(list_movie);
 app.use(search_movie);
+app.use(most_view);
 
 app.get('/*', function(req, res) {
   res.send("WELCOME TO API");
