@@ -22,7 +22,7 @@ router.post('/create_movie', function(req, res){
 
 	upload(req, res, err => {
        if (err){
-		   res.send({'status':'err','data':[]});
+		   res.send({'status':'err','error_message':'upload error','data':[]});
 	   }else{
 		   //console.log(req.body.title);
 		   
@@ -31,7 +31,7 @@ router.post('/create_movie', function(req, res){
 		   var description	= param.description;
 		   var duration		= param.duration;
 		   var genre_id		= param.genre_id;
-		   var artists		= param.artists;
+		   var artists		= param.artists.split(',');
 		   
 		   var Request 		= new sql.Request();
 		   var command = `
@@ -39,14 +39,44 @@ router.post('/create_movie', function(req, res){
 		   (title,description,duration,watchURL,status,genre_id)
 		   values
 		   ('${title}','${description}',${duration},'${uploaded_file}',1,${genre_id})
+		   SELECT SCOPE_IDENTITY() AS 'insert_id'
 		   `
-		   console.log(command);
+		   //console.log(command);
 			Request.query(command,function(err,data){
-				
 				if(err){
-					res.send({'status':'err','data':[]});
+					res.send({'status':'err','error_message':'insert movie error','data':[]});
 				}else{
-					res.send({'status':'success','data':'ok'});
+					var movie_id = data.recordset[0].insert_id;
+					var str = ``
+					for(x=0;x<artists.length;x++){
+						var artist_id = artists[x];
+						str = str + '('+artist_id+','+movie_id+',1),';
+					}
+					str = str.substring(0,str.length-1);
+
+					var command2 = `
+					insert into movie_artists
+					(artist_id,movie_id,status)
+					values
+					${str}
+					`
+					Request.query(command2,function(err,data){
+						if(err){
+							res.send({'status':'err','error_message':'insert movie artists error','data':[]});
+						}else{
+							var data = [];
+							data[0]				= {};
+							data[0].id			= movie_id;
+							data[0].title		= title;
+							data[0].description	= description;
+							data[0].duration	= duration;
+							data[0].genre_id	= genre_id;
+							data[0].artists		= artists;
+							data[0].watchURL	= uploaded_file;
+							res.send({'status':'success','data':data});
+						}
+					});
+					
 				}
 			})
 			
