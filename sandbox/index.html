@@ -1,0 +1,335 @@
+<div>
+	<div style="width:50%;float:left;background-color:white;min-height:100%;overflow-y:scroll;">
+		<div style="margin-left:10px;">
+			<h3>MOVIEFEST API DOCUMENTATION</h3>
+			<h4>Table of Content:</h4>
+			<ul>
+				<li>OVERVIEW</li>
+			</ul>
+			<ul>
+				<li>PREPARE</li>
+			</ul>
+			<ul>
+				<li>ADMIN API
+					<ol>
+						<li>create_movie API</li>
+						<li>update_movie API</li>
+						<li>most_view API</li>
+					</ol>
+				</li>
+			</ul>
+			<ul>
+				<li>APP API
+					<ol>
+						<li>list_movie API</li>
+						<li>search_movie API</li>
+						<li>viewership API</li>
+					</ol>
+				</li>
+			</ul>
+			<hr/>
+			<h4>OVERVIEW</h4>
+			<p>
+			This document contains a guide for using Moviefest API
+			</p>
+			<hr/>
+			<h4>PREPARE</h4>
+			<p>
+			This API runs under HTTP Request.
+			</p>
+			<p>
+			Request structure:<br/>
+			<font color='blue'>http://api_domain/api/v1/ACTION</font>
+			</p>
+			<table cellspacing=0 cellpadding=0 border=1>
+				<tr>
+					<th>Action Group</th>
+					<th>Action</th>
+					<th>Description</th>
+					<th>Method</th>
+				</tr>
+				
+				<tr>
+					<td>Admin</td>
+					<td>create_movie</td>
+					<td>API to create and upload movies.</td>
+					<td>POST</td>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td>update_movie</td>
+					<td>API to update movie</td>
+					<td>POST</td>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td>mostview_movie</td>
+					<td>API to see most viewed movie and most viewed genre</td>
+					<td>POST</td>
+				</tr>
+				
+				<tr>
+					<td>APP</td>
+					<td>list_movie</td>
+					<td>API to list all movies with pagination</td>
+					<td>GET</td>
+				</tr>
+				<tr>
+					<td>APP</td>
+					<td>search_movie</td>
+					<td>API to search movie by title/description/artists/genres</td>
+					<td>POST</td>
+				</tr>
+				<tr>
+					<td>APP</td>
+					<td>viewership</td>
+					<td>API to track movie viewership</td>
+					<td>GET</td>
+				</tr>
+				
+			</table>
+			<hr/>
+			
+			
+			<h4>ADMIN API</h4>
+			<strong>1. create_movie API</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/create_movie</font><br/>
+			Content-Type:&nbsp;<font color='blue'>multy-part</font><br/>
+			Method:&nbsp;<font color='blue'>POST</font><br/>
+			Parameters:
+			<ul>
+				<li>videoFile: mp4 file</li>
+				<li>title: varchar</li>
+				<li>description: text</li>
+				<li>duration: int (duration of movie in minute)</li>
+				<li>genre_id: int</li>
+				<li>artists: varchar (list of artist_id. example: '1,2,3')</li>
+			</ul>
+			All parameters are required.<br/>
+			Response:
+<pre>
+{
+	"status": "success",
+	"data": [
+		{
+			"id": 35,
+			"title": "title of movie",
+			"description": "description of movie",
+			"duration": "120",
+			"genre_id": "1",
+			"artists": [
+				"3",
+				"4"
+			],
+			"watchURL": "videoFile-1609487916730.mp4"
+		}
+	]
+}
+</pre>
+			</p>
+			
+			<strong>2. update_movie API</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/update_movie</font><br/>
+			Content-Type:&nbsp;<font color='blue'>multy-part</font><br/>
+			Method:&nbsp;<font color='blue'>POST</font><br/>
+			Parameters:
+			<ul>
+				<li>id: int (id of video file)</li>
+				<li>videoFile: mp4 file</li>
+				<li>title: varchar</li>
+				<li>description: text</li>
+				<li>duration: int (duration of movie in minute)</li>
+				<li>genre_id: int</li>
+				<li>artists: varchar (list of artist_id. example: '1,2,3')</li>
+			</ul>
+			All parameters are required except videoFile.<br/>
+			all artist data will be deleted and insert new artists data.<br/>
+			Response:
+<pre>
+{
+	"status": "success",
+	"data": [
+		{
+			"id": 35,
+			"title": "edited title of movie",
+			"description": "edited description of movie",
+			"duration": "125",
+			"genre_id": "2",
+			"artists": [
+				"1",
+				"2"
+			],
+			"watchURL": "videoFile-1609487916775.mp4"
+		}
+	]
+}
+</pre>
+			</p>
+			
+			
+			<strong>3. most_view API</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/mostview_movie</font><br/>
+			Method:&nbsp;<font color='blue'>POST</font><br/>
+			Parameters:
+			<ul>
+				<li>most_view_type: int (0: by movie, 1: by Genre)</li>
+			</ul>
+			response:
+<pre>
+{
+    "status": "success",
+    "data": [
+        {
+            "count_view": 3,
+            "title": "Mulan"
+        },
+        {
+            "count_view": 2,
+            "title": "I, Robot"
+        },
+        {
+            "count_view": 1,
+            "title": "Soul"
+        },
+        {
+            "count_view": 1,
+            "title": "Aladdin"
+        },
+        {
+            "count_view": 1,
+            "title": "The Lion King"
+        },
+        {
+            "count_view": 1,
+            "title": "Toy Story 4"
+        }
+    ]
+}
+</pre>
+			</p>
+			
+			
+			
+			<hr/>
+			<h4>APP API</h4>
+			<strong>1. list_movie</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/list_movie/parameter</font><br/>
+			Method:&nbsp;<font color='blue'>GET</font><br/>
+			Parameters: int (number of page)<br/>
+			Response:<br/>
+<pre>
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 6,
+            "title": "Aladdin",
+            "description": "movie description",
+            "duration": 125,
+            "watchurl": "http://test.kom/6",
+            "genre": "Adventure",
+            "RowNum": "6",
+            "artists": [
+                "Will Smith"
+            ]
+        },
+        {
+            "id": 9,
+            "title": "I, Robot",
+            "description": "description",
+            "duration": 124,
+            "watchurl": "http://test.kom/9",
+            "genre": "Action",
+            "RowNum": "7",
+            "artists": [
+                "Will Smith"
+            ]
+        }
+    ]
+}
+</pre>
+			</p>
+			
+			<strong>2. search_movie</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/search_movie/page_number</font><br/>
+			Method:&nbsp;<font color='blue'>POST</font><br/>
+			Parameters:
+			<ul>
+				<li>search_by: int (0: search by title, 1: search by description, 2: search by artist name, 3: search by genre name)</li>
+				<li>phrase: string (search keyword)</li>
+			</ul>
+			Response:
+<pre>
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 5,
+            "title": "Maleficent: Mistress of evil",
+            "description": "description",
+            "duration": 115,
+            "watchurl": "http://test.kom/5",
+            "genre": "Horror",
+            "RowNum": "1",
+            "artists": [
+                "Angelina Jolie"
+            ]
+        }
+    ]
+}
+</pre>
+			</p>
+			<strong>2. viewership</strong>
+			<p>
+			Request structure:&nbsp;<font color='blue'>http://api_domain/api/v1/viewership</font><br/>
+			Method:&nbsp;<font color='blue'>GET</font><br/>
+			Response:<br/>
+<pre>
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "title": "Soul",
+            "viewership": [
+                "faiz"
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Mulan",
+            "viewership": [
+                "faiz",
+                "abdul",
+                "chakim"
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Avengers Infinity War",
+            "viewership": []
+        }
+    ]
+}
+</pre>
+			</p>
+		</div>
+	</div>
+	
+	<div style="width:50%;float:left;background-color:white;">
+		<div style="margin-left:10px;">
+			<h3>SANDBOX</h3>
+		</div>
+	</div>
+</div>
+
+<style>
+	td,th{
+		padding: 5px;
+	}
+</style>
