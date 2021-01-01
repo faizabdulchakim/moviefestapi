@@ -15,16 +15,24 @@ const storage = multer.diskStorage({
 		cb(null,uploaded_file);
     }
 });
-var upload = multer({storage: storage}).any();//.single('videoFile');
+var upload = multer({
+	storage: storage,
+	fileFilter: (req, file, cb) => {
+		if (file.mimetype == "video/mp4" ) {
+			cb(null, true);
+		} else {
+			cb(null, false);
+			return cb('Only .mp4 format allowed!');
+		}
+	}
+}).any();
 
 router.post('/create_movie', function(req, res){
 
-
 	upload(req, res, err => {
        if (err){
-		   res.send({'status':'err','error_message':'upload error','data':[]});
+		   res.send({'status':'err','error_message':err,'data':[]});
 	   }else{
-		   //console.log(req.body.title);
 		   
 		   var param		= req.body;
 		   var title		= param.title;
@@ -41,7 +49,7 @@ router.post('/create_movie', function(req, res){
 		   ('${title}','${description}',${duration},'${uploaded_file}',1,${genre_id})
 		   SELECT SCOPE_IDENTITY() AS 'insert_id'
 		   `
-		   //console.log(command);
+		   
 			Request.query(command,function(err,data){
 				if(err){
 					res.send({'status':'err','error_message':'insert movie error','data':[]});

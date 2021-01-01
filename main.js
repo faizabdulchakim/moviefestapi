@@ -31,6 +31,7 @@ var search_movie		= require('./processor/app/search_movie.js');
 var viewership			= require('./processor/app/viewership');
 
 var create_movie		= require('./processor/admin/create_movie');
+var update_movie		= require('./processor/admin/update_movie');
 var most_view			= require('./processor/admin/most_view.js');
 
 app.use(bodyParser.json());
@@ -39,11 +40,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(list_movie);
 app.use(search_movie);
 app.use(viewership);
+app.use(update_movie);
 
 app.use(create_movie);
 app.use(most_view);
 
 app.get('/*', function(req, res) {
+  res.send("WELCOME TO API");
+});
+app.post('/*', function(req, res) {
   res.send("WELCOME TO API");
 });
 
