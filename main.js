@@ -26,13 +26,13 @@ sql.connect(db_config, function (err) {
 	if (err) console.log(err);
 });
 
-var list_movie			= require('./processor/app/list_movie.js');
-var search_movie		= require('./processor/app/search_movie.js');
-var viewership			= require('./processor/app/viewership');
+var list_movie			= require('./processor/v1/app/list_movie.js');
+var search_movie		= require('./processor/v1/app/search_movie.js');
+var viewership			= require('./processor/v1/app/viewership');
 
-var create_movie		= require('./processor/admin/create_movie');
-var update_movie		= require('./processor/admin/update_movie');
-var most_view			= require('./processor/admin/most_view.js');
+var create_movie		= require('./processor/v1/admin/create_movie');
+var update_movie		= require('./processor/v1/admin/update_movie');
+var most_view			= require('./processor/v1/admin/most_view.js');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
